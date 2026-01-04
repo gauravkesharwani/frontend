@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-50: #e6f1ff;
+  --color-primary-100: #b3d7ff;
+  --color-primary-200: #80bdff;
+  --color-primary-300: #4da3ff;
+  --color-primary-400: #1a89ff;
+  --color-primary-500: #0066cc;
+  --color-primary-600: #0052a3;
+  --color-primary-700: #003d7a;
+  --color-primary-800: #002952;
+  --color-primary-900: #001429;
+
+  --color-accent-50: #e6fff2;
+  --color-accent-100: #b3ffd9;
+  --color-accent-200: #80ffc0;
+  --color-accent-300: #4dffa7;
+  --color-accent-400: #1aff8e;
+  --color-accent-500: #00cc66;
+  --color-accent-600: #00a352;
+  --color-accent-700: #007a3d;
+  --color-accent-800: #005229;
+  --color-accent-900: #002914;
+}
+
+body {
+  @apply bg-white text-gray-900 antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-semibold;
+}
+
+.btn-primary {
+  @apply bg-primary-500 hover:bg-primary-600 text-white font-medium px-6 py-3 rounded-lg transition-colors duration-200;
+}
+
+.btn-secondary {
+  @apply bg-accent-500 hover:bg-accent-600 text-white font-medium px-6 py-3 rounded-lg transition-colors duration-200;
+}
+
+.btn-outline {
+  @apply border-2 border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white font-medium px-6 py-3 rounded-lg transition-colors duration-200;
+}
+
+.hero-overlay {
+  @apply absolute inset-0 bg-gradient-to-r from-primary-900/90 to-primary-700/70;
+}
+
+.section-container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
