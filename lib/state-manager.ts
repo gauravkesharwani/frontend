@@ -50,7 +50,7 @@ export class ChatStateManager {
   }
 
   getGreetingMessage(): string {
-    return "Hi! I'm Alti, your real estate investment assistant. I'll help you discover investment opportunities that match your goals. This will only take a minute. Ready to get started?"
+    return "Hi! I'm BlackKeyX, your real estate investment assistant. I'll help you discover investment opportunities that match your goals. This will only take a minute. Ready to get started?"
   }
 
   getQuestionMessage(state: ChatState): string {

@@ -1,7 +1,7 @@
 import { ToastProvider } from '@/components/ui/Toast'
 
 export const metadata = {
-  title: 'Admin Dashboard - Alti',
+  title: 'Admin Dashboard - BlackKeyX',
   description: 'Lead management and deal ingestion dashboard',
 }
 

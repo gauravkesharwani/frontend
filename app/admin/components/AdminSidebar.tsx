@@ -49,7 +49,7 @@ export function AdminSidebar() {
       <div className="h-[57px] px-6 flex items-center border-b">
         <Link href="/admin" className="flex items-center gap-3">
           <Logo size="sm" />
-          <span className="font-semibold text-gray-900">Alti Admin</span>
+          <span className="font-semibold text-gray-900">BlackKeyX Admin</span>
         </Link>
       </div>
 

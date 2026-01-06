@@ -5,7 +5,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Alti - Strategic Real Estate Investment',
+  title: 'BlackKeyX - Strategic Real Estate Investment',
   description: 'Discover strategic real estate investments matched to your goals',
 }
 

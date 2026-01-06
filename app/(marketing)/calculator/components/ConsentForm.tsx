@@ -26,7 +26,7 @@ export default function ConsentForm({ onConsent }: ConsentFormProps) {
             <p className="font-semibold mb-1">TCPA Consent Required</p>
             <p>
               By providing your phone number and clicking "I Agree", you consent to receive calls and text messages
-              from Alti and our partners about real estate investment opportunities. You understand that consent
+              from BlackKeyX and our partners about real estate investment opportunities. You understand that consent
               is not required to purchase any goods or services. Message and data rates may apply. You can opt out
               at any time by replying STOP to any text message.
             </p>

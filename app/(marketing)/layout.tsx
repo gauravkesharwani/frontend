@@ -70,7 +70,7 @@ export default function MarketingLayout({
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-primary-700 text-center text-gray-300">
-            <p>&copy; {new Date().getFullYear()} Alti. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} BlackKeyX. All rights reserved.</p>
           </div>
         </div>
       </footer>

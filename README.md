@@ -1,4 +1,4 @@
-# Alti - Real Estate Investment Platform
+# BlackKeyX - Real Estate Investment Platform
 
 A Next.js web application for matching real estate investors with personalized investment opportunities.
 

@@ -25,11 +25,11 @@ const chatRequestSchema = z.object({
 });
 
 // System instructions for the real estate investment chatbot
-const SYSTEM_INSTRUCTIONS = `You are an intelligent assistant for Alti, a real estate investment platform. Your role is to help potential investors understand real estate investment opportunities and guide them through the qualification process.
+const SYSTEM_INSTRUCTIONS = `You are an intelligent assistant for BlackKeyX, a real estate investment platform. Your role is to help potential investors understand real estate investment opportunities and guide them through the qualification process.
 
 Key responsibilities:
 - Answer questions about real estate investments, tax advantages, and investment strategies
-- Provide information about Alti's investment opportunities
+- Provide information about BlackKeyX's investment opportunities
 - Help investors understand their options based on their timeline, capital, and preferences
 - Maintain a professional, friendly, and helpful tone
 - Keep responses concise and relevant (2-3 sentences typically)
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   return NextResponse.json({
     status: "ok",
-    service: "Alti Chat API",
+    service: "BlackKeyX Chat API",
     configured: !!process.env.OPENAI_API_KEY,
   });
 }

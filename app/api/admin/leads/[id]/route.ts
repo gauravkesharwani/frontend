@@ -20,7 +20,7 @@ const mockLead: LeadWithDetails = {
       id: 'call_001',
       status: 'completed',
       duration: 342,
-      transcript: `Agent: Hi, this is Alti. Thanks for chatting with us - I promised I'd call fast, right?
+      transcript: `Agent: Hi, this is BlackKeyX. Thanks for chatting with us - I promised I'd call fast, right?
 
 Investor: Hey, yes! That was quick.
 
