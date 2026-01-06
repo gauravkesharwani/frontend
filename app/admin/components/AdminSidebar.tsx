@@ -47,9 +47,12 @@ export function AdminSidebar() {
     <aside className="w-64 bg-white border-r min-h-screen flex flex-col">
       {/* Logo */}
       <div className="h-[57px] px-6 flex items-center border-b">
-        <Link href="/admin" className="flex items-center gap-3">
-          <Logo size="sm" />
-          <span className="font-semibold text-gray-900">BlackKeyX Admin</span>
+        <Link href="/admin" className="flex items-center gap-2">
+          <Logo size="sm" showText={false} />
+          <div className="flex flex-col leading-tight">
+            <span className="font-bold text-gray-900">BlackKeyX</span>
+            <span className="text-xs text-gray-500">Admin</span>
+          </div>
         </Link>
       </div>
 
