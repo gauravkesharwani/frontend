@@ -1,36 +1,39 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { ChatStateManager } from '@/lib/state-manager'
 import { ChatMessage } from '@/types/lead'
 import { cn } from '@/lib/utils'
 
 interface ChatInterfaceProps {
   stateManager: ChatStateManager
-  onSendMessage: (message: string) => void
   isLoading?: boolean
+  shouldScroll?: boolean
 }
 
-export default function ChatInterface({ stateManager, onSendMessage, isLoading }: ChatInterfaceProps) {
-  const [inputValue, setInputValue] = useState('')
+export default function ChatInterface({ stateManager, isLoading, shouldScroll }: ChatInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const context = stateManager.getContext()
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    // Use double requestAnimationFrame to ensure layout is fully calculated after options panel renders
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+      })
+    })
   }
 
   useEffect(() => {
     scrollToBottom()
   }, [context.messages])
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (inputValue.trim() && !isLoading) {
-      onSendMessage(inputValue.trim())
-      setInputValue('')
+  // Scroll when interactive options appear (shouldScroll becomes true)
+  useEffect(() => {
+    if (shouldScroll) {
+      scrollToBottom()
     }
-  }
+  }, [shouldScroll])
 
   return (
     <div className="flex flex-col h-full">
@@ -54,29 +57,6 @@ export default function ChatInterface({ stateManager, onSendMessage, isLoading }
           </div>
         )}
         <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input Area */}
-      <div className="border-t border-gray-200 p-4 bg-white">
-        <form onSubmit={handleSubmit} className="flex space-x-2">
-          <input
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Type your message..."
-            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            disabled={isLoading}
-          />
-          <button
-            type="submit"
-            disabled={!inputValue.trim() || isLoading}
-            className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-            </svg>
-          </button>
-        </form>
       </div>
     </div>
   )

@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { ChatStateManager } from '@/lib/state-manager'
-import { ChatState } from '@/types/lead'
+import { ChatState, InvestorType, CapacityLevel, FitLevel, ProcessStyle, TimingLevel } from '@/types/lead'
+import { buildQualification } from '@/lib/qualification-scoring'
 import ChatInterface from './components/ChatInterface'
 import QualificationFlow from './components/QualificationFlow'
 import ConsentForm from './components/ConsentForm'
@@ -18,6 +19,7 @@ export default function CalculatorPage() {
     // Initial greeting
     stateManager.addMessage('assistant', stateManager.getGreetingMessage())
     setCurrentState('greeting')
+    setShowInteractive(true)
   }, [])
 
   const handleStart = () => {
@@ -34,20 +36,23 @@ export default function CalculatorPage() {
     }, 500)
   }
 
-  const handleAnswer = (answer: string | string[]) => {
-    const answerText = Array.isArray(answer)
-      ? answer.map(a => preferenceLabels[a] || a).join(', ')
-      : timelineLabels[answer] || capitalLabels[answer] || answer
+  const handleAnswer = (answer: string) => {
+    // Handle "other:" prefix for custom answers
+    const isOther = answer.startsWith('other:')
+    const displayValue = isOther ? answer.substring(6) : (answerLabels[answer] || answer)
+    stateManager.addMessage('user', displayValue)
 
-    stateManager.addMessage('user', answerText)
-
-    // Update state based on current question
-    if (currentState === 'question_1') {
-      stateManager.updateAnswer('investmentTimeline', answer as string)
-    } else if (currentState === 'question_2') {
-      stateManager.updateAnswer('capitalAvailable', answer as string)
-    } else if (currentState === 'question_3') {
-      stateManager.updateAnswer('investmentPreferences', answer as string[])
+    // Store the answer - for "other" responses, we keep the "other:" prefix
+    if (currentState === 'investor_type') {
+      stateManager.updateAnswer('investorType', answer as InvestorType)
+    } else if (currentState === 'capacity') {
+      stateManager.updateAnswer('capacity', answer as CapacityLevel)
+    } else if (currentState === 'fit') {
+      stateManager.updateAnswer('fit', answer as FitLevel)
+    } else if (currentState === 'process') {
+      stateManager.updateAnswer('process', answer as ProcessStyle)
+    } else if (currentState === 'timing') {
+      stateManager.updateAnswer('timing', answer as TimingLevel)
     }
 
     setIsLoading(true)
@@ -85,15 +90,15 @@ export default function CalculatorPage() {
     setIsLoading(true)
     setShowInteractive(false)
 
-    // Prepare lead data
+    // Prepare lead data with qualification
     const context = stateManager.getContext()
+    const qualification = buildQualification(context.answers)
+
     const leadData = {
-      investmentTimeline: context.answers.investmentTimeline || '',
-      capitalAvailable: context.answers.capitalAvailable || '',
-      investmentPreferences: context.answers.investmentPreferences || [],
       phoneNumber: phoneNumber,
       consent: context.consent || false,
       timestamp: new Date().toISOString(),
+      qualification: qualification,
     }
 
     try {
@@ -123,57 +128,13 @@ export default function CalculatorPage() {
         throw new Error('Submission failed')
       }
     } catch (error) {
+      console.error('Failed to submit lead:', error)
       stateManager.transitionTo('error')
       stateManager.addMessage('assistant',
         "I apologize, but there was an issue submitting your information. " +
         "Please try again or contact us directly at (555) 123-4567."
       )
       setCurrentState('error')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleSendMessage = async (message: string) => {
-    // Add user message to chat
-    stateManager.addMessage('user', message)
-    setIsLoading(true)
-
-    try {
-      // Import chat API function
-      const { sendChatMessage } = await import('@/lib/chat-api')
-
-      // Get current context and messages
-      const context = stateManager.getContext()
-      const messages = context.messages
-
-      // Call OpenAI API to get response
-      const response = await sendChatMessage(
-        messages,
-        {
-          investmentTimeline: context.answers.investmentTimeline,
-          capitalAvailable: context.answers.capitalAvailable,
-          investmentPreferences: context.answers.investmentPreferences,
-        }
-      )
-
-      // Add assistant response
-      stateManager.addMessage('assistant', response)
-    } catch (error) {
-      console.error('Failed to get AI response:', error)
-
-      // Fallback to the structured flow for greeting state
-      if (currentState === 'greeting') {
-        handleStart()
-        return
-      }
-
-      // Show error message
-      stateManager.addMessage(
-        'assistant',
-        "I apologize, but I'm having trouble processing your message right now. " +
-        "Please use the buttons below to continue, or try asking your question again."
-      )
     } finally {
       setIsLoading(false)
     }
@@ -199,8 +160,8 @@ export default function CalculatorPage() {
               <div className="flex-1 overflow-hidden">
                 <ChatInterface
                   stateManager={stateManager}
-                  onSendMessage={handleSendMessage}
                   isLoading={isLoading}
+                  shouldScroll={showInteractive}
                 />
               </div>
 
@@ -216,7 +177,7 @@ export default function CalculatorPage() {
                     </button>
                   )}
 
-                  {['question_1', 'question_2', 'question_3'].includes(currentState) && (
+                  {['investor_type', 'capacity', 'fit', 'process', 'timing'].includes(currentState) && (
                     <QualificationFlow
                       state={currentState}
                       onAnswer={handleAnswer}
@@ -281,25 +242,26 @@ export default function CalculatorPage() {
 }
 
 // Label mappings for displaying user-friendly text
-const timelineLabels: Record<string, string> = {
-  'immediate': 'Ready to invest now (1-3 months)',
-  '3-6months': 'Looking to invest in 3-6 months',
-  '6-12months': 'Planning to invest in 6-12 months',
-  '12+months': 'Long-term planning (1+ years)',
-}
-
-const capitalLabels: Record<string, string> = {
-  '50k-100k': '$50,000 - $100,000',
-  '100k-250k': '$100,000 - $250,000',
-  '250k-500k': '$250,000 - $500,000',
-  '500k+': '$500,000 or more',
-}
-
-const preferenceLabels: Record<string, string> = {
-  'residential': 'Residential Properties',
-  'commercial': 'Commercial Properties',
-  'industrial': 'Industrial Properties',
-  'mixed-use': 'Mixed-Use Developments',
-  'land': 'Land Development',
-  'reit': 'REITs',
+const answerLabels: Record<string, string> = {
+  // Investor type
+  'hnw': 'Individual investor',
+  'family_office': 'Family Office / Institution',
+  // Capacity
+  '$100K-$250K': '$100K - $250K',
+  '$250K-$500K': '$250K - $500K',
+  '$500K-$1M': '$500K - $1M',
+  '$1M+': '$1M+',
+  // Fit
+  'high_priority': 'High priority',
+  'medium_priority': 'Medium priority',
+  'open_to_exploring': 'Open to exploring',
+  'not_a_focus': 'Not a current focus',
+  // Process
+  'toe_in': 'Small toe-in first',
+  'meaningful_first': 'Meaningful first allocation',
+  'full_commitment': 'Full commitment if convinced',
+  // Timing
+  'actively_deploying': 'Yes, actively deploying',
+  'possibly_evaluating': 'Possibly, evaluating options',
+  'just_researching': 'No, just researching',
 }

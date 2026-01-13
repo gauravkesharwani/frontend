@@ -1,3 +1,22 @@
+// Investor qualification types
+// Each type allows standard options OR a custom "other:..." string
+export type InvestorType = 'hnw' | 'family_office' | `other:${string}`
+export type CapacityLevel = '$100K-$250K' | '$250K-$500K' | '$500K-$1M' | '$1M+' | `other:${string}`
+export type FitLevel = 'high_priority' | 'medium_priority' | 'open_to_exploring' | 'not_a_focus' | `other:${string}`
+export type ProcessStyle = 'toe_in' | 'meaningful_first' | 'full_commitment' | `other:${string}`
+export type TimingLevel = 'actively_deploying' | 'possibly_evaluating' | 'just_researching' | `other:${string}`
+export type QualificationBucket = 'active_intro' | 'nurture' | 'not_qualified'
+
+export interface InvestorQualification {
+  investorType: InvestorType
+  capacity: CapacityLevel
+  fit: FitLevel
+  process: ProcessStyle
+  timing: TimingLevel
+  score: number // 0-100
+  bucket: QualificationBucket
+}
+
 export interface Lead {
   investmentTimeline: string
   capitalAvailable: string
@@ -5,6 +24,7 @@ export interface Lead {
   phoneNumber: string
   consent: boolean
   timestamp: string
+  qualification?: InvestorQualification
 }
 
 // Pipeline stages for lead management dashboard
@@ -37,6 +57,18 @@ export const STAGE_COLORS: Record<PipelineStage, string> = {
   closed: 'bg-green-100 text-green-800',
 }
 
+export const BUCKET_COLORS: Record<QualificationBucket, string> = {
+  active_intro: 'bg-green-100 text-green-800',
+  nurture: 'bg-yellow-100 text-yellow-800',
+  not_qualified: 'bg-gray-100 text-gray-600',
+}
+
+export const BUCKET_LABELS: Record<QualificationBucket, string> = {
+  active_intro: 'Active Intro',
+  nurture: 'Nurture',
+  not_qualified: 'Not Qualified',
+}
+
 // Lead with full details for admin dashboard
 export interface LeadWithDetails {
   id: string
@@ -55,6 +87,7 @@ export interface LeadWithDetails {
   matches: DealMatch[]
   notes: LeadNote[]
   stageHistory: StageChange[]
+  qualification?: InvestorQualification
 }
 
 // Call record from voice AI
@@ -124,9 +157,11 @@ export interface LeadListResponse {
 
 export type ChatState =
   | 'greeting'
-  | 'question_1'  // Investment timeline
-  | 'question_2'  // Capital available
-  | 'question_3'  // Investment preferences
+  | 'investor_type'    // Q0: HNW or Family Office
+  | 'capacity'         // Q1: Check size
+  | 'fit'              // Q2: Industrial priority
+  | 'process'          // Q3: Relationship style
+  | 'timing'           // Q4: Deployment timeline
   | 'consent_gate'
   | 'phone_capture'
   | 'submitting'
@@ -140,13 +175,17 @@ export interface ChatMessage {
   timestamp: Date
 }
 
+export interface QualificationAnswers {
+  investorType?: InvestorType
+  capacity?: CapacityLevel
+  fit?: FitLevel
+  process?: ProcessStyle
+  timing?: TimingLevel
+}
+
 export interface ChatContext {
   state: ChatState
-  answers: {
-    investmentTimeline?: string
-    capitalAvailable?: string
-    investmentPreferences?: string[]
-  }
+  answers: QualificationAnswers
   messages: ChatMessage[]
   phoneNumber?: string
   consent?: boolean

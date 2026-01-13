@@ -55,12 +55,16 @@ export class ChatStateManager {
 
   getQuestionMessage(state: ChatState): string {
     switch (state) {
-      case 'question_1':
-        return "Great! Let's start with your investment timeline. When are you looking to invest in real estate?"
-      case 'question_2':
-        return "Perfect! How much capital do you have available for your initial real estate investment?"
-      case 'question_3':
-        return "Excellent! What type of real estate investments interest you most? (You can select multiple)"
+      case 'investor_type':
+        return "Are you investing personally as an individual, or through a family office or institution?"
+      case 'capacity':
+        return "What's a typical check size when you invest in a new real estate manager?"
+      case 'fit':
+        return "Where does US industrial real estate sit in your current allocation priorities?"
+      case 'process':
+        return "How do you typically start new manager relationships?"
+      case 'timing':
+        return "Are you actively looking to place capital in the next 3-6 months?"
       case 'consent_gate':
         return "Thanks for sharing! To provide you with personalized investment opportunities, I need your consent to contact you. By continuing, you agree to receive calls and texts about real estate investments. Standard rates may apply."
       case 'phone_capture':
@@ -72,10 +76,12 @@ export class ChatStateManager {
 
   getNextState(currentState: ChatState): ChatState {
     const stateFlow: Record<ChatState, ChatState> = {
-      greeting: 'question_1',
-      question_1: 'question_2',
-      question_2: 'question_3',
-      question_3: 'consent_gate',
+      greeting: 'investor_type',
+      investor_type: 'capacity',
+      capacity: 'fit',
+      fit: 'process',
+      process: 'timing',
+      timing: 'consent_gate',
       consent_gate: 'phone_capture',
       phone_capture: 'submitting',
       submitting: 'submitted',
@@ -91,12 +97,16 @@ export class ChatStateManager {
     switch (state) {
       case 'greeting':
         return true
-      case 'question_1':
-        return !!answers.investmentTimeline
-      case 'question_2':
-        return !!answers.capitalAvailable
-      case 'question_3':
-        return !!answers.investmentPreferences && answers.investmentPreferences.length > 0
+      case 'investor_type':
+        return !!answers.investorType
+      case 'capacity':
+        return !!answers.capacity
+      case 'fit':
+        return !!answers.fit
+      case 'process':
+        return !!answers.process
+      case 'timing':
+        return !!answers.timing
       case 'consent_gate':
         return !!consent
       case 'phone_capture':

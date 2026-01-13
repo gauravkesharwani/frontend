@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { StageBadge, ScoreBadge } from '@/components/ui/Badge'
+import { StageBadge, ScoreBadge, BucketBadge } from '@/components/ui/Badge'
 import { LeadWithDetails, PipelineStage, PIPELINE_STAGES } from '@/types/lead'
 import { useUpdateLeadStage } from '@/hooks/useLeads'
 import { useToast } from '@/components/ui/Toast'
@@ -94,6 +94,9 @@ export function LeadsTable({ leads, onLeadClick, onStageUpdate }: LeadsTableProp
               Score
             </th>
             <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">
+              Bucket
+            </th>
+            <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">
               Created
             </th>
           </tr>
@@ -153,7 +156,14 @@ export function LeadsTable({ leads, onLeadClick, onStageUpdate }: LeadsTableProp
                 </div>
               </td>
               <td className="px-6 py-4">
-                <ScoreBadge score={lead.leadScore} />
+                <ScoreBadge score={lead.qualification?.score ?? lead.leadScore} />
+              </td>
+              <td className="px-6 py-4">
+                {lead.qualification?.bucket ? (
+                  <BucketBadge bucket={lead.qualification.bucket} />
+                ) : (
+                  <span className="text-sm text-gray-400">-</span>
+                )}
               </td>
               <td className="px-6 py-4">
                 <div className="flex items-center gap-2">
