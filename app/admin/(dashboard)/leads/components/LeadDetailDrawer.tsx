@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Drawer } from '@/components/ui/Drawer'
-import { StageBadge, ScoreBadge, Badge } from '@/components/ui/Badge'
+import { StageBadge, ScoreBadge, Badge, BucketBadge } from '@/components/ui/Badge'
 import { DetailsSkeleton } from '@/components/ui/Skeleton'
 import { useLead, useUpdateLeadStage, useAddLeadNote } from '@/hooks/useLeads'
 import { useToast } from '@/components/ui/Toast'
@@ -116,10 +116,64 @@ export function LeadDetailDrawer({
               </div>
               <div className="flex items-center gap-3 mt-2">
                 <StageBadge stage={lead.stage} />
-                <ScoreBadge score={lead.leadScore} />
+                {lead.qualification ? (
+                  <>
+                    <ScoreBadge score={lead.qualification.score} />
+                    <BucketBadge bucket={lead.qualification.bucket} />
+                  </>
+                ) : (
+                  <ScoreBadge score={lead.leadScore} />
+                )}
               </div>
             </div>
           </div>
+
+          {/* Qualification Breakdown */}
+          {lead.qualification && (
+            <div className="bg-gradient-to-r from-primary-50 to-accent-50 rounded-lg p-4">
+              <h3 className="text-sm font-medium text-gray-700 mb-3">
+                Qualification Breakdown
+              </h3>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span className="text-gray-500">Investor Type:</span>
+                  <span className="ml-2 font-medium text-gray-900">
+                    {lead.qualification.investorType === 'hnw' ? 'Individual' : 'Family Office'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-500">Capacity:</span>
+                  <span className="ml-2 font-medium text-gray-900">
+                    {lead.qualification.capacity}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-500">Fit:</span>
+                  <span className="ml-2 font-medium text-gray-900">
+                    {lead.qualification.fit.replaceAll('_', ' ')}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-500">Process:</span>
+                  <span className="ml-2 font-medium text-gray-900">
+                    {lead.qualification.process.replaceAll('_', ' ')}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-500">Timing:</span>
+                  <span className="ml-2 font-medium text-gray-900">
+                    {lead.qualification.timing.replaceAll('_', ' ')}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-500">Score:</span>
+                  <span className="ml-2 font-medium text-gray-900">
+                    {lead.qualification.score}/100
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Quick Info */}
           <div className="grid grid-cols-2 gap-4">

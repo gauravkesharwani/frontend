@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { PipelineStage, STAGE_COLORS, PIPELINE_STAGES } from '@/types/lead'
+import { PipelineStage, STAGE_COLORS, PIPELINE_STAGES, QualificationBucket, BUCKET_COLORS, BUCKET_LABELS } from '@/types/lead'
 
 interface BadgeProps {
   children: React.ReactNode
@@ -78,6 +78,28 @@ export function ScoreBadge({ score, className }: ScoreBadgeProps) {
       )}
     >
       {score}
+    </span>
+  )
+}
+
+interface BucketBadgeProps {
+  bucket: QualificationBucket
+  className?: string
+}
+
+export function BucketBadge({ bucket, className }: BucketBadgeProps) {
+  const colorClass = BUCKET_COLORS[bucket]
+  const label = BUCKET_LABELS[bucket]
+
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+        colorClass,
+        className
+      )}
+    >
+      {label}
     </span>
   )
 }

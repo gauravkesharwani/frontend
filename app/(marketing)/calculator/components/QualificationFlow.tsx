@@ -1,130 +1,199 @@
 'use client'
 
 import { useState } from 'react'
-import { ChatState } from '@/types/lead'
-import { cn } from '@/lib/utils'
+import { ChatState, InvestorType, CapacityLevel, FitLevel, ProcessStyle, TimingLevel } from '@/types/lead'
 
 interface QualificationFlowProps {
   state: ChatState
-  onAnswer: (answer: string | string[]) => void
+  onAnswer: (answer: string) => void
 }
 
-const timelineOptions = [
-  { value: 'immediate', label: 'Ready Now', description: 'Looking to invest within 1-3 months' },
-  { value: '3-6months', label: '3-6 Months', description: 'Planning to invest this year' },
-  { value: '6-12months', label: '6-12 Months', description: 'Building capital for investment' },
-  { value: '12+months', label: '1+ Years', description: 'Long-term planning phase' },
+interface Option<T extends string> {
+  value: T | 'other'
+  label: string
+  description: string
+}
+
+const investorTypeOptions: Option<InvestorType>[] = [
+  { value: 'hnw', label: 'Individual Investor', description: 'Investing personal capital' },
+  { value: 'family_office', label: 'Family Office / Institution', description: 'Investing on behalf of a family office or institution' },
+  { value: 'other', label: 'Other', description: 'Specify your investor type' },
 ]
 
-const capitalOptions = [
-  { value: '50k-100k', label: '$50K - $100K', description: 'Entry-level investment' },
-  { value: '100k-250k', label: '$100K - $250K', description: 'Standard investment range' },
-  { value: '250k-500k', label: '$250K - $500K', description: 'Substantial investment' },
-  { value: '500k+', label: '$500K+', description: 'Premium investment tier' },
+const capacityOptions: Option<CapacityLevel>[] = [
+  { value: '$100K-$250K', label: '$100K - $250K', description: 'Entry-level manager allocation' },
+  { value: '$250K-$500K', label: '$250K - $500K', description: 'Standard allocation range' },
+  { value: '$500K-$1M', label: '$500K - $1M', description: 'Substantial allocation' },
+  { value: '$1M+', label: '$1M+', description: 'Premium tier allocation' },
+  { value: 'other', label: 'Other', description: 'Specify your typical check size' },
 ]
 
-const preferenceOptions = [
-  { value: 'residential', label: 'Residential', description: 'Single/multi-family homes', icon: '🏠' },
-  { value: 'commercial', label: 'Commercial', description: 'Office & retail spaces', icon: '🏢' },
-  { value: 'industrial', label: 'Industrial', description: 'Warehouses & manufacturing', icon: '🏭' },
-  { value: 'mixed-use', label: 'Mixed-Use', description: 'Combined residential/commercial', icon: '🌆' },
-  { value: 'land', label: 'Land Development', description: 'Raw land & development', icon: '🌄' },
-  { value: 'reit', label: 'REITs', description: 'Real estate investment trusts', icon: '📈' },
+const fitOptions: Option<FitLevel>[] = [
+  { value: 'high_priority', label: 'High Priority', description: 'Actively seeking US industrial exposure' },
+  { value: 'medium_priority', label: 'Medium Priority', description: 'One of several focus areas' },
+  { value: 'open_to_exploring', label: 'Open to Exploring', description: 'Interested but not a current priority' },
+  { value: 'not_a_focus', label: 'Not a Current Focus', description: 'Other sectors take precedence' },
+  { value: 'other', label: 'Other', description: 'Specify your allocation priorities' },
 ]
 
-export default function QualificationFlow({ state, onAnswer }: QualificationFlowProps) {
-  const [selectedPreferences, setSelectedPreferences] = useState<string[]>([])
+const processOptions: Option<ProcessStyle>[] = [
+  { value: 'toe_in', label: 'Small Toe-In First', description: 'Start with a smaller allocation to build confidence' },
+  { value: 'meaningful_first', label: 'Meaningful First Allocation', description: 'Comfortable committing meaningfully from the start' },
+  { value: 'full_commitment', label: 'Full Commitment If Convinced', description: 'Ready for a full allocation if the opportunity fits' },
+  { value: 'other', label: 'Other', description: 'Specify your relationship approach' },
+]
 
-  const handleSingleSelect = (value: string) => {
-    onAnswer(value)
-  }
+const timingOptions: Option<TimingLevel>[] = [
+  { value: 'actively_deploying', label: 'Yes, Actively Deploying', description: 'Looking to place capital in the next 3-6 months' },
+  { value: 'possibly_evaluating', label: 'Possibly, Evaluating Options', description: 'Open to opportunities but no immediate pressure' },
+  { value: 'just_researching', label: 'No, Just Researching', description: 'Gathering information for future consideration' },
+  { value: 'other', label: 'Other', description: 'Specify your timeline' },
+]
 
-  const handleMultiSelect = (value: string) => {
-    const newPreferences = selectedPreferences.includes(value)
-      ? selectedPreferences.filter(p => p !== value)
-      : [...selectedPreferences, value]
-    setSelectedPreferences(newPreferences)
-  }
+function OptionButton<T extends string>({
+  option,
+  onClick,
+  isSelected,
+}: {
+  option: Option<T>
+  onClick: (value: T | 'other') => void
+  isSelected: boolean
+}) {
+  return (
+    <button
+      onClick={() => onClick(option.value)}
+      className={`w-full text-left p-4 border-2 rounded-xl transition-all group ${
+        isSelected
+          ? 'border-primary-500 bg-primary-50'
+          : 'border-gray-200 hover:border-primary-500 hover:bg-primary-50'
+      }`}
+    >
+      <div className={`font-semibold ${isSelected ? 'text-primary-600' : 'text-gray-900 group-hover:text-primary-600'}`}>
+        {option.label}
+      </div>
+      <div className="text-sm text-gray-600">{option.description}</div>
+    </button>
+  )
+}
 
-  const handlePreferencesSubmit = () => {
-    if (selectedPreferences.length > 0) {
-      onAnswer(selectedPreferences)
+function OtherInput({
+  placeholder,
+  onSubmit,
+  onCancel,
+}: {
+  placeholder: string
+  onSubmit: (value: string) => void
+  onCancel: () => void
+}) {
+  const [value, setValue] = useState('')
+
+  const handleSubmit = () => {
+    if (value.trim()) {
+      onSubmit(value.trim())
     }
   }
 
-  if (state === 'question_1') {
-    return (
-      <div className="space-y-3">
-        {timelineOptions.map((option) => (
-          <button
-            key={option.value}
-            onClick={() => handleSingleSelect(option.value)}
-            className="w-full text-left p-4 border-2 border-gray-200 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-all group"
-          >
-            <div className="font-semibold text-gray-900 group-hover:text-primary-600">{option.label}</div>
-            <div className="text-sm text-gray-600">{option.description}</div>
-          </button>
-        ))}
-      </div>
-    )
-  }
-
-  if (state === 'question_2') {
-    return (
-      <div className="space-y-3">
-        {capitalOptions.map((option) => (
-          <button
-            key={option.value}
-            onClick={() => handleSingleSelect(option.value)}
-            className="w-full text-left p-4 border-2 border-gray-200 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-all group"
-          >
-            <div className="font-semibold text-lg text-gray-900 group-hover:text-primary-600">{option.label}</div>
-            <div className="text-sm text-gray-600">{option.description}</div>
-          </button>
-        ))}
-      </div>
-    )
-  }
-
-  if (state === 'question_3') {
-    return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {preferenceOptions.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => handleMultiSelect(option.value)}
-              className={cn(
-                'p-4 border-2 rounded-xl transition-all text-left',
-                selectedPreferences.includes(option.value)
-                  ? 'border-primary-500 bg-primary-50'
-                  : 'border-gray-200 hover:border-primary-300'
-              )}
-            >
-              <div className="flex items-start space-x-3">
-                <span className="text-2xl">{option.icon}</span>
-                <div className="flex-1">
-                  <div className="font-semibold text-gray-900">{option.label}</div>
-                  <div className="text-xs text-gray-600">{option.description}</div>
-                </div>
-                {selectedPreferences.includes(option.value) && (
-                  <svg className="w-5 h-5 text-primary-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                )}
-              </div>
-            </button>
-          ))}
-        </div>
+  return (
+    <div className="mt-3 space-y-3">
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder={placeholder}
+        className="w-full px-4 py-3 border-2 border-primary-300 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none"
+        autoFocus
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && value.trim()) {
+            handleSubmit()
+          }
+        }}
+      />
+      <div className="flex gap-2">
         <button
-          onClick={handlePreferencesSubmit}
-          disabled={selectedPreferences.length === 0}
-          className="w-full btn-primary disabled:bg-gray-300 disabled:cursor-not-allowed"
+          onClick={onCancel}
+          className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50"
         >
-          Continue ({selectedPreferences.length} selected)
+          Cancel
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={!value.trim()}
+          className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+        >
+          Continue
         </button>
       </div>
-    )
+    </div>
+  )
+}
+
+export default function QualificationFlow({ state, onAnswer }: QualificationFlowProps) {
+  const [showOtherInput, setShowOtherInput] = useState(false)
+  const [selectedOther, setSelectedOther] = useState(false)
+
+  const handleSelect = (value: string) => {
+    if (value === 'other') {
+      setSelectedOther(true)
+      setShowOtherInput(true)
+    } else {
+      setSelectedOther(false)
+      setShowOtherInput(false)
+      onAnswer(value)
+    }
+  }
+
+  const handleOtherSubmit = (customValue: string) => {
+    onAnswer(`other:${customValue}`)
+    setShowOtherInput(false)
+    setSelectedOther(false)
+  }
+
+  const handleOtherCancel = () => {
+    setShowOtherInput(false)
+    setSelectedOther(false)
+  }
+
+  const renderOptions = <T extends string>(
+    options: Option<T>[],
+    placeholder: string
+  ) => (
+    <div className="space-y-3">
+      {options.map((option) => (
+        <OptionButton
+          key={option.value}
+          option={option}
+          onClick={handleSelect}
+          isSelected={selectedOther && option.value === 'other'}
+        />
+      ))}
+      {showOtherInput && (
+        <OtherInput
+          placeholder={placeholder}
+          onSubmit={handleOtherSubmit}
+          onCancel={handleOtherCancel}
+        />
+      )}
+    </div>
+  )
+
+  if (state === 'investor_type') {
+    return renderOptions(investorTypeOptions, 'e.g., RIA, Endowment, Pension Fund...')
+  }
+
+  if (state === 'capacity') {
+    return renderOptions(capacityOptions, 'e.g., $50K, $2M, varies by opportunity...')
+  }
+
+  if (state === 'fit') {
+    return renderOptions(fitOptions, 'e.g., Looking at multifamily instead...')
+  }
+
+  if (state === 'process') {
+    return renderOptions(processOptions, 'e.g., Co-invest first, depends on deal size...')
+  }
+
+  if (state === 'timing') {
+    return renderOptions(timingOptions, 'e.g., Within 12 months, after Q2...')
   }
 
   return null

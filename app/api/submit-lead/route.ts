@@ -11,11 +11,17 @@ export async function POST(request: NextRequest) {
     // TODO: In production, this would forward to your FastAPI backend
     // For now, we'll just log it and return success
     console.log('Lead submitted:', {
-      timeline: validatedData.investmentTimeline,
-      capital: validatedData.capitalAvailable,
-      preferences: validatedData.investmentPreferences,
       phone: validatedData.phoneNumber,
       timestamp: validatedData.timestamp,
+      qualification: validatedData.qualification ? {
+        investorType: validatedData.qualification.investorType,
+        capacity: validatedData.qualification.capacity,
+        fit: validatedData.qualification.fit,
+        process: validatedData.qualification.process,
+        timing: validatedData.qualification.timing,
+        score: validatedData.qualification.score,
+        bucket: validatedData.qualification.bucket,
+      } : null,
     })
 
     // Simulate API call to FastAPI backend
