@@ -20,7 +20,6 @@ yarn-error.log*
 
 # Editor directories
 .idea/
-.vscode/
 *.swp
 *.swo
 
